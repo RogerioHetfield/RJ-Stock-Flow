@@ -45,10 +45,11 @@ export default defineConfig({
     allowedHosts: true,
     proxy: {
       "/api": {
-        target: "http://localhost:3001",
+        target: "https://adega-pro.onrender.com",
         changeOrigin: true,
       },
     },
+
     fs: {
       strict: true,
       deny: ["**/.*"],
