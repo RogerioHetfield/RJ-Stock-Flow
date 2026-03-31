@@ -49,44 +49,58 @@ router.post("/setup", async (req, res) => {
 });
 
 router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
-    res.status(400).json({ error: "bad_request", message: "E-mail e senha são obrigatórios" });
-    return;
-  }
+  try {
+    console.log("1 - entrou no login");
 
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.email, email)).limit(1);
-  if (!user) {
-    res.status(401).json({ error: "unauthorized", message: "Credenciais inválidas" });
-    return;
-  }
+    const { email, password } = req.body;
+    console.log("2 - body recebido", { email, hasPassword: !!password });
 
-  if (!user.active) {
-    res.status(403).json({ error: "forbidden", message: "Usuário desativado. Contate o administrador." });
-    return;
-  }
+    if (!email || !password) {
+      res.status(400).json({ error: "bad_request", message: "E-mail e senha são obrigatórios" });
+      return;
+    }
 
-  const valid = await bcrypt.compare(password, user.passwordHash);
-  if (!valid) {
-    res.status(401).json({ error: "unauthorized", message: "Credenciais inválidas" });
-    return;
-  }
+    console.log("3 - antes da query no banco");
 
-  const token = signToken(user.id, user.role);
-  res.json({ token, user: formatUser(user) });
-});
+    const [user] = await db
+      .select()
+      .from(usersTable)
+      .where(eq(usersTable.email, email))
+      .limit(1);
 
-router.get("/me", authMiddleware, async (req: AuthRequest, res) => {
-  const [user] = await db.select().from(usersTable).where(eq(usersTable.id, req.userId!)).limit(1);
-  if (!user) {
-    res.status(401).json({ error: "unauthorized", message: "Usuário não encontrado" });
-    return;
+    console.log("4 - depois da query", user?.email);
+
+    if (!user) {
+      res.status(401).json({ error: "unauthorized", message: "Credenciais inválidas" });
+      return;
+    }
+
+    if (!user.active) {
+      res.status(403).json({ error: "forbidden", message: "Usuário desativado. Contate o administrador." });
+      return;
+    }
+
+    console.log("5 - antes do bcrypt.compare");
+
+    const valid = await bcrypt.compare(password, user.passwordHash);
+
+    console.log("6 - depois do bcrypt.compare", valid);
+
+    if (!valid) {
+      res.status(401).json({ error: "unauthorized", message: "Credenciais inválidas" });
+      return;
+    }
+
+    const token = signToken(user.id, user.role);
+
+    console.log("7 - antes de responder");
+
+    res.json({ token, user: formatUser(user) });
+
+  } catch (error) {
+    console.error("Erro no login:", error);
+    res.status(500).json({ error: "internal_error", message: "Erro interno no login" });
   }
-  if (!user.active) {
-    res.status(403).json({ error: "forbidden", message: "Usuário desativado" });
-    return;
-  }
-  res.json(formatUser(user));
 });
 
 export default router;
