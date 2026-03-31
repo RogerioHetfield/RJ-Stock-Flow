@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Adega - Sistema de Estoque"
+version = "1.0.0"
+id = "artifacts/adega"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 22516
+
+[services.development]
+run = "pnpm --filter @workspace/adega run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/adega", "run", "build" ]
+publicDir = "artifacts/adega/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22516"
+BASE_PATH = "/"

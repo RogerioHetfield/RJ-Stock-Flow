@@ -1,0 +1,950 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Adega - Sistema de Controle de Estoque
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication
+  - name: categories
+    description: Product categories
+  - name: products
+    description: Product management
+  - name: movements
+    description: Stock movements
+  - name: reports
+    description: Reports and analytics
+  - name: dashboard
+    description: Dashboard summaries
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /categories:
+    get:
+      operationId: getCategories
+      tags: [categories]
+      summary: List all categories
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+    post:
+      operationId: createCategory
+      tags: [categories]
+      summary: Create a category
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequest"
+      responses:
+        "201":
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /categories/{id}:
+    put:
+      operationId: updateCategory
+      tags: [categories]
+      summary: Update a category
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCategoryRequest"
+      responses:
+        "200":
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+    delete:
+      operationId: deleteCategory
+      tags: [categories]
+      summary: Delete a category
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /products:
+    get:
+      operationId: getProducts
+      tags: [products]
+      summary: List all products
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: search
+          in: query
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: lowStock
+          in: query
+          schema:
+            type: boolean
+        - name: outOfStock
+          in: query
+          schema:
+            type: boolean
+        - name: sortBy
+          in: query
+          schema:
+            type: string
+            enum: [name, quantity, cost, price, profit]
+        - name: sortOrder
+          in: query
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [products]
+      summary: Create a product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRequest"
+      responses:
+        "201":
+          description: Product created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [products]
+      summary: Get a product by ID
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProductDetail"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updateProduct
+      tags: [products]
+      summary: Update a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateProductRequest"
+      responses:
+        "200":
+          description: Product updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [products]
+      summary: Delete a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /movements:
+    get:
+      operationId: getMovements
+      tags: [movements]
+      summary: List stock movements
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: productId
+          in: query
+          schema:
+            type: integer
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [entry, exit, loss, adjustment]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of movements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Movement"
+    post:
+      operationId: createMovement
+      tags: [movements]
+      summary: Create a stock movement
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMovementRequest"
+      responses:
+        "201":
+          description: Movement created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Movement"
+
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Get dashboard summary stats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /dashboard/low-stock:
+    get:
+      operationId: getLowStockProducts
+      tags: [dashboard]
+      summary: Get products with low stock
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Low stock products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /dashboard/recent-movements:
+    get:
+      operationId: getRecentMovements
+      tags: [dashboard]
+      summary: Get recent stock movements
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Recent movements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Movement"
+
+  /dashboard/category-breakdown:
+    get:
+      operationId: getCategoryBreakdown
+      tags: [dashboard]
+      summary: Get stock breakdown by category
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Category breakdown
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CategoryBreakdown"
+
+  /reports/stock:
+    get:
+      operationId: getStockReport
+      tags: [reports]
+      summary: Get stock report
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [all, low, out]
+      responses:
+        "200":
+          description: Stock report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StockReport"
+
+  /reports/financial:
+    get:
+      operationId: getFinancialReport
+      tags: [reports]
+      summary: Get financial report
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: startDate
+          in: query
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Financial report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/FinancialReport"
+
+  /reports/movements:
+    get:
+      operationId: getMovementsReport
+      tags: [reports]
+      summary: Get movements report
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [entry, exit, loss, adjustment]
+        - name: startDate
+          in: query
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          schema:
+            type: string
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Movements report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MovementsReport"
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+        - message
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+        - message
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+      required:
+        - token
+        - user
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [admin, manager, operator]
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - email
+        - role
+        - createdAt
+
+    Category:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        productCount:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - productCount
+        - createdAt
+
+    CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+      required:
+        - name
+
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        sku:
+          type: string
+        description:
+          type: string
+        categoryId:
+          type: integer
+        categoryName:
+          type: string
+        unit:
+          type: string
+        quantity:
+          type: number
+        minQuantity:
+          type: number
+        costPrice:
+          type: number
+        salePrice:
+          type: number
+        supplier:
+          type: string
+        expiryDate:
+          type: string
+        entryDate:
+          type: string
+        observations:
+          type: string
+        imageUrl:
+          type: string
+        profitPerUnit:
+          type: number
+        totalInvested:
+          type: number
+        totalSaleValue:
+          type: number
+        estimatedProfit:
+          type: number
+        stockStatus:
+          type: string
+          enum: [ok, low, out]
+        createdAt:
+          type: string
+      required:
+        - id
+        - name
+        - categoryId
+        - unit
+        - quantity
+        - minQuantity
+        - costPrice
+        - salePrice
+        - profitPerUnit
+        - totalInvested
+        - totalSaleValue
+        - estimatedProfit
+        - stockStatus
+        - createdAt
+
+    ProductDetail:
+      allOf:
+        - $ref: "#/components/schemas/Product"
+        - type: object
+          properties:
+            movements:
+              type: array
+              items:
+                $ref: "#/components/schemas/Movement"
+          required:
+            - movements
+
+    CreateProductRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        sku:
+          type: string
+        description:
+          type: string
+        categoryId:
+          type: integer
+        unit:
+          type: string
+        quantity:
+          type: number
+        minQuantity:
+          type: number
+        costPrice:
+          type: number
+        salePrice:
+          type: number
+        supplier:
+          type: string
+        expiryDate:
+          type: string
+        entryDate:
+          type: string
+        observations:
+          type: string
+        imageUrl:
+          type: string
+      required:
+        - name
+        - categoryId
+        - unit
+        - quantity
+        - minQuantity
+        - costPrice
+        - salePrice
+
+    Movement:
+      type: object
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        productSku:
+          type: string
+        categoryName:
+          type: string
+        type:
+          type: string
+          enum: [entry, exit, loss, adjustment]
+        quantity:
+          type: number
+        previousQuantity:
+          type: number
+        newQuantity:
+          type: number
+        userId:
+          type: integer
+        userName:
+          type: string
+        observations:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - productId
+        - productName
+        - type
+        - quantity
+        - previousQuantity
+        - newQuantity
+        - userId
+        - userName
+        - createdAt
+
+    CreateMovementRequest:
+      type: object
+      properties:
+        productId:
+          type: integer
+        type:
+          type: string
+          enum: [entry, exit, loss, adjustment]
+        quantity:
+          type: number
+        observations:
+          type: string
+      required:
+        - productId
+        - type
+        - quantity
+
+    DashboardSummary:
+      type: object
+      properties:
+        totalProducts:
+          type: integer
+        totalCategories:
+          type: integer
+        lowStockCount:
+          type: integer
+        outOfStockCount:
+          type: integer
+        totalInvested:
+          type: number
+        totalSaleValue:
+          type: number
+        estimatedProfit:
+          type: number
+        todayEntries:
+          type: integer
+        todayExits:
+          type: integer
+      required:
+        - totalProducts
+        - totalCategories
+        - lowStockCount
+        - outOfStockCount
+        - totalInvested
+        - totalSaleValue
+        - estimatedProfit
+        - todayEntries
+        - todayExits
+
+    CategoryBreakdown:
+      type: object
+      properties:
+        categoryId:
+          type: integer
+        categoryName:
+          type: string
+        productCount:
+          type: integer
+        totalQuantity:
+          type: number
+        totalInvested:
+          type: number
+        estimatedProfit:
+          type: number
+      required:
+        - categoryId
+        - categoryName
+        - productCount
+        - totalQuantity
+        - totalInvested
+        - estimatedProfit
+
+    StockReport:
+      type: object
+      properties:
+        generatedAt:
+          type: string
+        totalProducts:
+          type: integer
+        totalInvested:
+          type: number
+        totalSaleValue:
+          type: number
+        estimatedProfit:
+          type: number
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+      required:
+        - generatedAt
+        - totalProducts
+        - totalInvested
+        - totalSaleValue
+        - estimatedProfit
+        - products
+
+    FinancialReport:
+      type: object
+      properties:
+        generatedAt:
+          type: string
+        period:
+          type: object
+          properties:
+            startDate:
+              type: string
+            endDate:
+              type: string
+          required:
+            - startDate
+            - endDate
+        totalInvested:
+          type: number
+        totalSaleValue:
+          type: number
+        estimatedProfit:
+          type: number
+        profitMargin:
+          type: number
+        products:
+          type: array
+          items:
+            $ref: "#/components/schemas/Product"
+      required:
+        - generatedAt
+        - period
+        - totalInvested
+        - totalSaleValue
+        - estimatedProfit
+        - profitMargin
+        - products
+
+    MovementsReport:
+      type: object
+      properties:
+        generatedAt:
+          type: string
+        period:
+          type: object
+          properties:
+            startDate:
+              type: string
+            endDate:
+              type: string
+          required:
+            - startDate
+            - endDate
+        totalEntries:
+          type: integer
+        totalExits:
+          type: integer
+        totalLosses:
+          type: integer
+        totalAdjustments:
+          type: integer
+        movements:
+          type: array
+          items:
+            $ref: "#/components/schemas/Movement"
+      required:
+        - generatedAt
+        - period
+        - totalEntries
+        - totalExits
+        - totalLosses
+        - totalAdjustments
+        - movements

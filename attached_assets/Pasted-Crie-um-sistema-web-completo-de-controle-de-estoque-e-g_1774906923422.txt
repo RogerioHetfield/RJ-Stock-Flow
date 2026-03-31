@@ -1,0 +1,193 @@
+Crie um sistema web completo de controle de estoque e gestão para uma adega / minimercado, com foco principal na venda de botijão de gás, galões de água, bebidas e outros produtos básicos.
+
+Tecnologias
+Frontend: React + Vite
+Backend: Node.js + Express
+Banco de dados: PostgreSQL
+Estilização: Tailwind CSS ou Styled Components
+Requisições HTTP: Axios
+Autenticação: JWT
+Objetivo do sistema
+
+O sistema deve ajudar o dono do comércio a ter controle total do estoque, entrada e saída de produtos, custos, preços de venda e lucro estimado.
+
+Funcionalidades principais
+1. Login de usuário
+Tela de login
+Autenticação com JWT
+Persistência de sessão no localStorage
+Área protegida após login
+2. Dashboard principal
+Exibir resumo geral do estoque
+Mostrar quantidade total de produtos cadastrados
+Mostrar produtos com estoque baixo
+Mostrar produtos sem estoque
+Mostrar valor total investido no estoque
+Mostrar valor total estimado de venda
+Mostrar lucro estimado com base no estoque atual
+3. Cadastro de produtos
+
+O sistema deve permitir cadastrar produtos com os seguintes campos:
+
+Nome do produto
+Categoria
+Descrição
+Código interno ou SKU
+Quantidade em estoque
+Unidade (unidade, galão, botijão, caixa, fardo, litro, etc.)
+Custo por unidade
+Preço de venda
+Fornecedor
+Data de entrada
+Data de validade (quando necessário)
+Observações
+Imagem do produto (opcional)
+4. Categorias de produtos
+
+Criar categorias como:
+
+Botijão de gás
+Galão de água
+Bebidas
+Cervejas
+Refrigerantes
+Gelo
+Conveniência
+Mercearia
+Outros
+
+Permitir:
+
+Criar categoria
+Editar categoria
+Excluir categoria
+5. Controle de estoque
+
+O sistema deve permitir:
+
+Adicionar quantidade de um produto já existente
+Dar baixa em produtos vendidos ou retirados
+Editar quantidade manualmente
+Registrar perda, quebra ou vencimento
+Mostrar histórico de movimentação de estoque
+6. Movimentações de estoque
+
+Cada movimentação deve registrar:
+
+Produto
+Tipo de movimentação (entrada, saída, perda, ajuste)
+Quantidade
+Data e hora
+Usuário responsável
+Observação
+7. Controle financeiro básico por produto
+
+Para cada produto, mostrar:
+
+Quantidade atual em estoque
+Valor total investido naquele item
+Valor total estimado de venda
+Lucro estimado por unidade
+Lucro estimado total com base no estoque disponível
+8. Relatórios
+
+Criar uma área de relatórios com:
+
+Relatório de produtos em estoque
+Relatório de produtos com estoque baixo
+Relatório de produtos sem estoque
+Relatório de entradas
+Relatório de saídas
+Relatório de perdas
+Relatório de lucro estimado
+Filtros por período, categoria e produto
+9. Busca e filtros
+
+Permitir:
+
+Buscar produto por nome
+Filtrar por categoria
+Filtrar por estoque baixo
+Filtrar por produtos sem estoque
+Ordenar por nome, quantidade, custo, preço e lucro
+10. Página de detalhes do produto
+
+Ao clicar em um produto, mostrar:
+
+Todas as informações cadastradas
+Histórico de movimentação
+Quantidade atual
+Custo atual
+Preço de venda
+Lucro estimado
+Status do estoque
+11. Alertas importantes
+
+O sistema deve destacar:
+
+Produtos com estoque baixo
+Produtos zerados
+Produtos próximos do vencimento
+Produtos com margem de lucro baixa
+12. Painel administrativo
+
+Criar um painel administrativo para:
+
+Gerenciar produtos
+Gerenciar categorias
+Gerenciar usuários
+Visualizar movimentações
+Visualizar relatórios
+Regras de negócio
+O sistema não deve ter carrinho nem checkout
+O foco é controle interno do estoque
+Toda entrada e saída de produto deve atualizar o estoque automaticamente
+O cálculo de lucro deve ser automático com base em custo e preço de venda
+O sistema deve funcionar bem para um comércio pequeno
+Design
+Interface moderna e simples
+Visual profissional
+Responsivo para desktop e tablet
+Dashboard com cards de resumo
+Tabelas organizadas
+Botões claros para entrada e saída de produtos
+Cores sóbrias e visual de sistema comercial real
+Estrutura do projeto
+
+Organize o projeto em:
+
+frontend/
+backend/
+Backend
+
+Estruture o backend com:
+
+Controllers
+Routes
+Middlewares
+Services
+Database models
+Rotas sugeridas
+POST /sessions
+POST /users
+GET /products
+POST /products
+PUT /products/:id
+DELETE /products/:id
+GET /categories
+POST /categories
+GET /movements
+POST /movements
+GET /reports/stock
+GET /reports/financial
+Extras importantes
+Validação de formulários
+Mensagens de erro amigáveis
+Loading nas requisições
+Confirmação antes de excluir
+Máscara para valores em reais
+Datas formatadas no padrão brasileiro
+Código limpo e organizado
+Resultado esperado
+
+O sistema deve funcionar de forma completa, permitindo que o dono da adega / minimercado controle estoque, entradas, saídas, custos, preços e tenha visão clara do lucro estimado dos produtos.
